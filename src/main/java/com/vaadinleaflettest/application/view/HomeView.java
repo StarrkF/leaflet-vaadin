@@ -5,14 +5,17 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.vaadinleaflettest.application.leaflet.layer.LeafletLayerGroup;
 import com.vaadinleaflettest.application.leaflet.layer.LeafletMapLayer;
 import com.vaadinleaflettest.application.leaflet.map.LeafletMap;
-import com.vaadinleaflettest.application.leaflet.ui.LeafletCircle;
-import com.vaadinleaflettest.application.leaflet.ui.LeafletMarker;
-import com.vaadinleaflettest.application.leaflet.ui.LeafletPoint;
+import com.vaadinleaflettest.application.leaflet.ui.*;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 
 import java.util.Random;
 
@@ -28,6 +31,9 @@ public class HomeView extends VerticalLayout {
     Button btnFocusLastMarker =  new Button("Focus Marker");
     Button btnFocusLastCircle =  new Button("Focus Circle");
     Button btnCreateLayerGroup =  new Button(("Create Layer Group"));
+    TextField txtWkt = new TextField("Wkt");
+    TextField txtGeometry = new TextField("Geometry");
+    Button btnPolygon = new Button("Set Polygon");
     FormLayout flButtonArea = new FormLayout();
     LeafletMap map = new LeafletMap();
 
@@ -36,11 +42,15 @@ public class HomeView extends VerticalLayout {
 
     public HomeView() {
         map.setClickListener();
+//        map.setEditable(true);
+        map.setScrollWheelZoomEnabled(false);
+        map.setZoomControlEnabled(false);
         setButtonClickListeners();
         buildView();
     }
 
     private void buildView() {
+        txtWkt.setWidth("100%");
         flButtonArea.add(
                 btnAddMarker,
                 btnZoom,
@@ -49,7 +59,10 @@ public class HomeView extends VerticalLayout {
                 btnDeleteLastMarker,
                 btnFocusLastMarker,
                 btnFocusLastCircle,
-                btnCreateLayerGroup
+                btnCreateLayerGroup,
+                txtWkt,
+                txtGeometry,
+                btnPolygon
         );
 
         flButtonArea.setResponsiveSteps(
@@ -74,7 +87,30 @@ public class HomeView extends VerticalLayout {
         });
 
         btnAddCircle.addClickListener(c -> {
-            lastCircle = map.addCircle(new LeafletCircle(generateRandomPoint(), 500));
+            lastCircle = map.addCircle(new LeafletCircle(generateRandomPoint(), 5000));
+        });
+
+        btnPolygon.addClickListener(c -> {
+            if ( txtWkt.getValue() != null && !txtWkt.getValue().isEmpty()) {
+                LeafletMapStyle style = new LeafletMapStyle();
+                style.setColor("#ffff");
+                style.setFillColor("#000000");
+
+                LeafletPolygon polygon = new LeafletPolygon(txtWkt.getValue());
+                polygon.setStyle(style);
+                map.addPolygon(polygon);
+            }
+            if (txtGeometry.getValue() != null && !txtGeometry.getValue().isEmpty()) {
+                WKTReader reader = new WKTReader();
+                try {
+                     reader.read(txtGeometry.getValue());
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+//                String wkt = map.wktAsString((Geometry) txtGeometry.getValue());
+                map.addPolygon(new LeafletPolygon(txtGeometry.getValue()));
+            }
+
         });
 
         btnZoom.addClickListener(c -> {

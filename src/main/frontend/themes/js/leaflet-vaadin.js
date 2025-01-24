@@ -1,10 +1,15 @@
 // Vaadin dev mod console.log bypass
-console.log = function() {};
+console.log = function () {
+};
+
+import Wkt from "wicket/wicket-leaflet.js";
+
 var marker;
 
 const createdMapObject = {};
 const layers = {};
 const layerGroups = {};
+
 
 const initMap = (id) => {
     let map = L.map(id).setView([39.9334, 32.8597], 6);
@@ -20,14 +25,14 @@ const initMultipleLayerMap = (id) => {
     const googleTraffic = L.tileLayer('https://{s}.google.com/vt/lyrs=m@221097413,traffic&x={x}&y={y}&z={z}', {
         maxZoom: 20,
         minZoom: 2,
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
     });
     const googleStreets = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
         maxZoom: 20,
         subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
     });
     const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 18,
+        maxZoom: 18
     });
     const googleHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
         maxZoom: 20,
@@ -61,7 +66,7 @@ const initMultipleLayerMap = (id) => {
 const addMarker = (id, markerInfo, layerId) => {
     let map = createdMapObject[id];
     let markerData = JSON.parse(markerInfo);
-    let latLng = L.latLng(markerData.point.lat,markerData.point.lon);
+    let latLng = L.latLng(markerData.point.lat, markerData.point.lon);
 
     if (markerData.icon) {
         let customDivIcon = L.divIcon({
@@ -96,14 +101,25 @@ const addMarker = (id, markerInfo, layerId) => {
 const addCircle = (id, circle, layerId) => {
     let map = createdMapObject[id];
     let circleData = JSON.parse(circle)
-    let layer = L.circle([circleData.point.lat, circleData.point.lon], {
-        color: circleData.color,
-        fillColor: circleData.fillColor,
-        fillOpacity: circleData.fillOpacity,
-        radius: circleData.radius
-    }).addTo(map);
+    let layer = L.circle([circleData.point.lat, circleData.point.lon],{
+        radius: circleData.radius,
+    }).addTo(map)
+    layer.setStyle(initLayerStyle(circleData.style));
     layers[layerId] = layer;
     map.fitBounds(layer.getBounds());
+}
+
+const addPolygon = (id, polygon, layerId) => {
+    let map = createdMapObject[id];
+    let wkt = new Wkt.Wkt();
+    let polygonData = JSON.parse(polygon)
+    console.warn(polygonData.style);
+    wkt.read(polygonData.wkt);
+    let wktLayer = wkt.toObject(true);
+    wktLayer.setStyle(initLayerStyle(polygonData.style));
+    wktLayer.addTo(map);
+    layers[layerId] = wktLayer;
+    map.fitBounds(wktLayer.getBounds())
 }
 
 const setEditable = (id, editable) => {
@@ -113,22 +129,22 @@ const setEditable = (id, editable) => {
 
 const setOpacity = (id, opacity) => {
     let map = createdMapObject[id];
-    map.eachLayer(function(layer) {
+    map.eachLayer(function (layer) {
         if (layer instanceof L.TileLayer) {
             layer.setOpacity(opacity);
         }
     });
 }
 
-const zoomToPoint  = (id, lat, lng, zoom = 10) => {
+const zoomToPoint = (id, lat, lng, zoom = 10) => {
     let map = createdMapObject[id];
-    let latLng = L.latLng(lat,lng);
+    let latLng = L.latLng(lat, lng);
     map.setView(latLng, zoom);
 }
 
 const removeAllComponent = (id) => {
     let map = createdMapObject[id];
-    map.eachLayer(function(layer) {
+    map.eachLayer(function (layer) {
         map.removeLayer(layer);
     });
 }
@@ -182,6 +198,31 @@ const setMapClickListener = (id) => {
     });
 }
 
+const setScrollWheelZoomEnabled = (id, enabled) => {
+    let map = createdMapObject[id];
+    enabled ? map.scrollWheelZoom.enable() : map.scrollWheelZoom.disable();
+}
+
+const setZoomControlEnabled = (id, enabled) => {
+    let map = createdMapObject[id];
+    enabled ? map.zoomControl.enable() : map.zoomControl.disable();
+
+}
+
+const initLayerStyle = (style) => {
+    return {
+        color: style.color,
+        weight: style.weight,
+        fillColor: style.fillColor,
+        fillOpacity: style.fillOpacity,
+    }
+}
+
+const setLayerStyle = (layerId, style) => {
+    let styleData = JSON.parse(style)
+    layers[layerId].setStyle(initLayerStyle(styleData));
+}
+
 window.leaflet = {
     initMap: initMap,
     initMultipleLayerMap: initMultipleLayerMap,
@@ -190,11 +231,15 @@ window.leaflet = {
     setOpacity: setOpacity,
     zoomToPoint: zoomToPoint,
     addCircle: addCircle,
+    addPolygon: addPolygon,
     removeAllComponent: removeAllComponent,
     zoomToContent: zoomToContent,
     addLayerToGroup: addLayerToGroup,
     addLayer: addLayer,
     addLayerGroup: addLayerGroup,
+    setLayerStyle: setLayerStyle,
     setMapClickListener: setMapClickListener,
-    removeLayer: removeLayer
+    removeLayer: removeLayer,
+    setScrollWheelZoomEnabled: setScrollWheelZoomEnabled,
+    setZoomControlEnabled: setZoomControlEnabled
 };

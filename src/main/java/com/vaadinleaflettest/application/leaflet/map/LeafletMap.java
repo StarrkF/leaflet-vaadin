@@ -12,6 +12,15 @@ import com.vaadinleaflettest.application.leaflet.layer.LeafletMapLayer;
 import com.vaadinleaflettest.application.leaflet.ui.LeafletCircle;
 import com.vaadinleaflettest.application.leaflet.ui.LeafletMarker;
 import com.vaadinleaflettest.application.leaflet.ui.LeafletPoint;
+import com.vaadinleaflettest.application.leaflet.ui.LeafletPolygon;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.WKTWriter;
+import org.springframework.web.servlet.support.JstlUtils;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -19,15 +28,21 @@ import java.util.UUID;
 @Tag("leaflet-map")
 @NpmPackage(value = "leaflet", version = "1.9.4")
 @NpmPackage(value = "leaflet-editable", version = "1.3.0")
+@NpmPackage(value = "wicket", version = "1.3.8")
 @JsModule("leaflet")
 @JsModule("leaflet-editable")
 @CssImport("leaflet/dist/leaflet.css")
 @JavaScript("./themes/js/leaflet-vaadin.js")
 public class LeafletMap extends Component implements HasSize {
 
+    String strWkt = "POLYGON((-10 50, -10 60, 0 60, 0 50, -10 50))";
+
+
     private String id;
     private Boolean editable = false;
     Gson gson = new Gson();
+    WKTReader wktReader;
+    WKTWriter writer = new WKTWriter();
 
     public LeafletMap() {
         this("500px", null);
@@ -76,6 +91,14 @@ public class LeafletMap extends Component implements HasSize {
         executeJsAfterPageInit("leaflet.setOpacity($0, $1)", id, opacity);
     }
 
+    public void setScrollWheelZoomEnabled(Boolean enabled) {
+        executeJsAfterPageInit("leaflet.setScrollWheelZoomEnabled($0, $1)", id, enabled);
+    }
+
+    public void setZoomControlEnabled(Boolean enabled) {
+        executeJsAfterPageInit("leaflet.setZoomControlEnabled($0, $1)", id, enabled);
+    }
+
     public void zoomToNokta(LeafletPoint point, Integer zoomRate) {
         executeJsAfterPageInit("leaflet.zoomToPoint($0, $1, $2, $3)", id, point.getLat(), point.getLon(), zoomRate);
     }
@@ -120,6 +143,58 @@ public class LeafletMap extends Component implements HasSize {
             executeJsAfterPageInit("leaflet.addLayerGroup($0, $1)", id, layer.getId());
         }
     }
+
+    public LeafletMapLayer addPolygon(LeafletPolygon polygon) {
+        executeJsAfterPageInit("leaflet.addPolygon($0, $1, $2)", id,  gson.toJson(polygon), polygon.getId());
+        return polygon;
+    }
+
+//    public String wktAsString(String stringGeometry) {
+//        Geometry geometry = readWKT(stringGeometry);
+//
+//        return writer.write(geometry);
+//    }
+
+    public LeafletMapLayer wktToLeafletLayer() {
+
+
+//        if (strWkt.startsWith("POINT")) {
+//            org.locationtech.jts.geom.Point point = getPoint(strWkt);
+//            Double lon = point.getX();
+//            Double lat = point.getY();
+//            CevherWktUtil
+//            LLatLng latLng = new LLatLng(reg, lat, lon);
+//            return  latLng;
+//            //LMarker lMarker = addPointToMapAsMarker(new Point(lat, lon), null, null, VaadinIcon.SIGNAL);
+//            //return lMarker;
+//        } else if (strWkt.startsWith("MULTIPOINT")) {
+//            return CevherWktUtil.toLayer(reg, (MultiPoint) readWKT(strWkt));
+//        } else if (strWkt.startsWith("LINESTRING")) {
+//            return JTSUtil.toLayer((LineString) readWKT(strWkt));
+//        } else if (strWkt.startsWith("POLYGON")) {
+//            return JTSUtil.toLayer((Polygon) readWKT(strWkt));
+//        } else if (strWkt.startsWith("MULTIPOLYGON")) {
+//            return JTSUtil.toLayer((MultiPolygon) readWKT(strWkt));
+//        }
+//
+//        return null;
+        return null;
+    }
+
+    public Geometry readWKT(Geometry wktString) {
+//        try {
+//            wktReader = new WKTReader();
+//            return wktReader.read(wktString);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+        return null;
+    }
+
+//    private org.locationtech.jts.geom.Point getPoint(String strWkt) {
+//        return (org.locationtech.jts.geom.Point) readWKT(strWkt);
+//    }
 
     private String createLayerUid() {
         return UUID.randomUUID().toString();

@@ -23,7 +23,8 @@
     "proj4": "2.11.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-router-dom": "6.26.2"
+    "react-router-dom": "6.26.2",
+    "wicket": "1.3.8"
   },
   "devDependencies": {
     "@babel/preset-react": "7.24.7",
@@ -61,11 +62,14 @@
       "@vaadin/vaadin-usage-statistics": "2.1.3",
       "construct-style-sheets-polyfill": "3.1.0",
       "date-fns": "2.29.3",
+      "leaflet": "1.9.4",
+      "leaflet-editable": "1.3.0",
       "lit": "3.1.4",
       "proj4": "2.11.0",
       "react": "18.3.1",
       "react-dom": "18.3.1",
-      "react-router-dom": "6.26.2"
+      "react-router-dom": "6.26.2",
+      "wicket": "1.3.8"
     },
     "devDependencies": {
       "@babel/preset-react": "7.24.7",
@@ -87,7 +91,7 @@
       "workbox-core": "7.1.0",
       "workbox-precaching": "7.1.0"
     },
-    "hash": "e5bd4d7c7cffb7730856e8f7041d46c65a8d5601ccb14d4ba91c1b85782d2e6a"
+    "hash": "29b66aff79ad0c5730fcdaa8b135386076332ac01b6dbdbdc8b25b52c51de377"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -110,6 +114,7 @@
     "@vaadin/vaadin-lumo-styles": "$@vaadin/vaadin-lumo-styles",
     "@vaadin/vaadin-material-styles": "$@vaadin/vaadin-material-styles",
     "leaflet": "$leaflet",
-    "leaflet-editable": "$leaflet-editable"
+    "leaflet-editable": "$leaflet-editable",
+    "wicket": "$wicket"
   }
 }

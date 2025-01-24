@@ -2,49 +2,22 @@ package com.vaadinleaflettest.application.leaflet.ui;
 
 
 import com.vaadinleaflettest.application.leaflet.layer.LeafletMapLayer;
+import com.vaadinleaflettest.application.leaflet.layer.LeafletMapStyleableLayer;
+import com.vaadinleaflettest.application.leaflet.map.HasMapStyle;
 
-public class LeafletCircle extends LeafletMapLayer {
+public class LeafletCircle extends LeafletMapStyleableLayer {
 
-    private String color;
-    private String fillColor;
-    private String fillOpacity;
     private Integer radius;
     private LeafletPoint point;
 
-    public LeafletCircle(LeafletPoint point, String color, String fillColor, String fillOpacity, Integer radius) {
-        this.point = point;
-        this.color = color;
-        this.fillColor = fillColor;
-        this.fillOpacity = fillOpacity;
-        this.radius = radius;
-    }
-
     public LeafletCircle(LeafletPoint point, Integer radius) {
-        this(point, "red", "#f03", "0.5", 500);
+        this(point, radius, new LeafletMapStyle());
     }
 
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public String getFillColor() {
-        return fillColor;
-    }
-
-    public void setFillColor(String fillColor) {
-        this.fillColor = fillColor;
-    }
-
-    public String getFillOpacity() {
-        return fillOpacity;
-    }
-
-    public void setFillOpacity(String fillOpacity) {
-        this.fillOpacity = fillOpacity;
+    public LeafletCircle(LeafletPoint point, Integer radius, LeafletMapStyle style) {
+        this.point = point;
+        super.setStyle(style);
+        this.radius = radius;
     }
 
     public Integer getRadius() {
